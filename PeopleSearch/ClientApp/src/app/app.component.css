@@ -1,6 +1,24 @@
-@media (max-width: 767px) {
-  /* On small screens, the nav menu spans the full width of the screen. Leave a space for it. */
-  .body-content {
-    padding-top: 50px;
-  }
+#people-header {
+  background-image: url(../assets/img/people-network-header.jpg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  padding: 100px 100px;
+  margin-top: 20px;
+  min-height: 100%;
+}
+
+h1 {
+  color: #333e99;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 400%;
+  text-align: center;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+h3 {
+  color: #333e99;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  margin-top: 4px;
 }
