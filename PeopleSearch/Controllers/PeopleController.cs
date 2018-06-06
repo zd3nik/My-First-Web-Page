@@ -33,14 +33,11 @@ namespace PeopleSearch.Controllers
                     Age = 4543000,
                     Interests = "Rotating",
                     AvatarUri = "asserts/img/world.png",
-                    Address = new AddressEntry
-                    {
-                        Line1 = "3rd Planet",
-                        Country = "Milky Way",
-                        State = "Orian Arm",
-                        City = "Solar System",
-                        ZipCode = "0"
-                    }
+                    Addr1 = "3rd Planet",
+                    Country = "Milky Way",
+                    State = "Orian Arm",
+                    City = "Solar System",
+                    ZipCode = "0"
                 });
                 _context.PersonEntries.Add(new PersonEntry
                 {
@@ -50,14 +47,11 @@ namespace PeopleSearch.Controllers
                     Age = 25,
                     Interests = "Making stuff out of metal.",
                     AvatarUri = "assets/img/man-960_720.png",
-                    Address = new AddressEntry
-                    {
-                        Line1 = "123 Main St.",
-                        Country = "USA",
-                        State = "UT",
-                        City = "Salt Lake City",
-                        ZipCode = "84101"
-                    }
+                    Addr1 = "123 Main St.",
+                    Country = "USA",
+                    State = "UT",
+                    City = "Salt Lake City",
+                    ZipCode = "84101"
                 });
                 _context.PersonEntries.Add(new PersonEntry
                 {
@@ -66,15 +60,12 @@ namespace PeopleSearch.Controllers
                     Age = 30,
                     Interests = "Writing letters.",
                     AvatarUri = "assets/img/woman-960_720.png",
-                    Address = new AddressEntry
-                    {
-                        Line1 = "328 West 89th Street",
-                        Line2 = "APT B1",
-                        Country = "USA",
-                        State = "NY",
-                        City = "New York",
-                        ZipCode = "10024"
-                    }
+                    Addr1 = "328 West 89th Street",
+                    Addr2 = "APT B1",
+                    Country = "USA",
+                    State = "NY",
+                    City = "New York",
+                    ZipCode = "10024"
                 });
                 _context.SaveChanges();
             }

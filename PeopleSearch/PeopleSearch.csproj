@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\models\mock-people.ts" />
+    <None Remove="ClientApp\src\app\models\person.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="ClientApp\src\assets\img\man-960_720.png" />
     <Content Include="ClientApp\src\assets\img\people-network-header.jpg" />
     <Content Include="ClientApp\src\assets\img\woman-960_720.png" />
@@ -32,6 +37,11 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\assets\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\models\mock-people.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\models\person.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
