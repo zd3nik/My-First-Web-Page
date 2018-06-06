@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { PersonComponent } from './person/person.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FetchDataComponent } from './fetch-data/fetch-data.component';
+import { PeopleComponent } from './people/people.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { FetchDataComponent } from './fetch-data/fetch-data.component';
     PersonComponent,
     NavMenuComponent,
     FetchDataComponent,
+    PeopleComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

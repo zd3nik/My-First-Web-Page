@@ -1,37 +1,15 @@
-<!--<div class='container-fluid'>
-  <div class='row'>
-    <div class='col-sm-3'>
-      <app-nav-menu></app-nav-menu>
-    </div>
-    <div class='col-sm-9 body-content'>
-      <router-outlet></router-outlet>
-    </div>
-  </div>
-</div>-->
-
-<div class="container-fluid">
-  <div id="people-list">
-    <ul class="people">
-      <li *ngFor="let person of people"
-          [class.selected]="person === selectedPerson"
-          (click)="onSelect(person)">
-        {{person.firstName | titlecase}} {{person.lastName | titlecase}}
-      </li>
-    </ul>
-  </div>
-  <div id="person-detail" *ngIf="selectedPerson">
-    <img [src]="selectedPerson.avatarUri || '../../assets/img/profile-placeholder.png'" />
-    <p>{{selectedPerson.firstName | titlecase}} {{selectedPerson.lastName | titlecase}}</p>
-    <hr />
-    <p><span>First Name: </span><input [(ngModel)]="selectedPerson.firstName" placeholder="required" /></p>
-    <p><span>Last Name: </span><input [(ngModel)]="selectedPerson.lastName" placeholder="required" /></p>
-    <p><span>Age: </span><input [(ngModel)]="selectedPerson.age" /></p>
-    <p><span>Interests: </span><input [(ngModel)]="selectedPerson.interests" /></p>
-    <p><span>Address Line 1: </span><input [(ngModel)]="selectedPerson.addr1" /></p>
-    <p><span>Address Line 2: </span><input [(ngModel)]="selectedPerson.addr2" /></p>
-    <p><span>Country: </span><input [(ngModel)]="selectedPerson.country" /></p>
-    <p><span>City: </span><input [(ngModel)]="selectedPerson.city" /></p>
-    <p><span>State: </span><input [(ngModel)]="selectedPerson.state" /></p>
-    <p><span>Zip: </span><input [(ngModel)]="selectedPerson.zipCode" /></p>
-  </div>
+<div id="person-detail" *ngIf="person">
+  <img [src]="person.avatarUri || '../../assets/img/profile-placeholder.png'" />
+  <p>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</p>
+  <hr />
+  <p><span>First Name: </span><input [(ngModel)]="person.firstName" placeholder="required" /></p>
+  <p><span>Last Name: </span><input [(ngModel)]="person.lastName" placeholder="required" /></p>
+  <p><span>Age: </span><input [(ngModel)]="person.age" /></p>
+  <p><span>Interests: </span><input [(ngModel)]="person.interests" /></p>
+  <p><span>Address Line 1: </span><input [(ngModel)]="person.addr1" /></p>
+  <p><span>Address Line 2: </span><input [(ngModel)]="person.addr2" /></p>
+  <p><span>Country: </span><input [(ngModel)]="person.country" /></p>
+  <p><span>City: </span><input [(ngModel)]="person.city" /></p>
+  <p><span>State: </span><input [(ngModel)]="person.state" /></p>
+  <p><span>Zip: </span><input [(ngModel)]="person.zipCode" /></p>
 </div>

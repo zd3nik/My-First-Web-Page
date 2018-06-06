@@ -1,0 +1,12 @@
+<div id="people-list">
+  <input placeholder="name filter" />
+  <ul class="people">
+    <li *ngFor="let person of people"
+        [class.selected]="person === selectedPerson"
+        (click)="onSelect(person)">
+      {{person.firstName | titlecase}} {{person.lastName | titlecase}}
+    </li>
+  </ul>
+</div>
+
+<app-person [person]="selectedPerson"></app-person>
