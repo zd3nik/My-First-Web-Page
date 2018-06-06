@@ -30,6 +30,7 @@ namespace PeopleSearch.Controllers
                     Id = "1",
                     FirstName = "Hello",
                     LastName = "World",
+                    Gender = "Planet",
                     Age = 4543000,
                     Interests = "Rotating",
                     AvatarUri = "asserts/img/world.png",
@@ -44,6 +45,7 @@ namespace PeopleSearch.Controllers
                     Id = "2",
                     FirstName = "John",
                     LastName = "Smith",
+                    Gender = "Male",
                     Age = 25,
                     Interests = "Making stuff out of metal.",
                     AvatarUri = "assets/img/man-960_720.png",
@@ -57,6 +59,7 @@ namespace PeopleSearch.Controllers
                 {
                     FirstName = "Jane",
                     LastName = "Doe",
+                    Gender = "Female",
                     Age = 30,
                     Interests = "Writing letters.",
                     AvatarUri = "assets/img/woman-960_720.png",

@@ -5,6 +5,7 @@
         public string Id { get; set;  }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Gender { get; set; }
         public int Age { get; set; }
         public string Interests { get; set; }
         public string AvatarUri { get; set; }
@@ -28,6 +29,7 @@
             {
                 FirstName = other.FirstName;
                 LastName = other.LastName;
+                Gender = other.Gender;
                 Age = other.Age;
                 Interests = other.Interests;
                 AvatarUri = other.AvatarUri;
