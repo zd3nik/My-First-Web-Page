@@ -1,29 +1,30 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+//import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { PersonComponent } from './person/person.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { PeopleComponent } from './people/people.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PersonComponent,
-    NavMenuComponent,
-    FetchDataComponent,
     PeopleComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
-    HttpClientModule,
     FormsModule,
+//    HttpClientModule,
     RouterModule.forRoot([
-      { path: 'fetch-data', component: FetchDataComponent },
+      { path: 'people', component: PeopleComponent },
+      { path: 'people/:id', component: PersonComponent },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: '', redirectTo: '/people', pathMatch: 'full' },
     ])
   ],
   providers: [],

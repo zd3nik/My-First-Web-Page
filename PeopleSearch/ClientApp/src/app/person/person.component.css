@@ -14,13 +14,3 @@ img {
   max-width: 128px;
   display: block;
 }
-
-hr {
-  display: block;
-  height: 2px;
-  border: 0;
-  border-top: 1px solid #ccc;
-  margin-left: 0em;
-  margin-right: 1em;
-  padding: 0;
-}
