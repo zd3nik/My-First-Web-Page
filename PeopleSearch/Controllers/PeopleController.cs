@@ -23,54 +23,7 @@ namespace PeopleSearch.Controllers
 
             if (_context.PersonEntries.Count() == 0)
             {
-                // setup a couple entries with a numeric looking id to try to confuse the JS front end
-                // also to make manual testing of the API calls a little easier to input by hand
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    Id = "1",
-                    FirstName = "Hello",
-                    LastName = "World",
-                    Gender = "Planet",
-                    Age = 4543000,
-                    Interests = "Rotating",
-                    AvatarUri = "asserts/img/world.png",
-                    Addr1 = "3rd Planet",
-                    Country = "Milky Way",
-                    State = "Orian Arm",
-                    City = "Solar System",
-                    ZipCode = "0"
-                });
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    Id = "2",
-                    FirstName = "John",
-                    LastName = "Smith",
-                    Gender = "Male",
-                    Age = 25,
-                    Interests = "Making stuff out of metal.",
-                    AvatarUri = "assets/img/man-960_720.png",
-                    Addr1 = "123 Main St.",
-                    Country = "USA",
-                    State = "UT",
-                    City = "Salt Lake City",
-                    ZipCode = "84101"
-                });
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    FirstName = "Jane",
-                    LastName = "Doe",
-                    Gender = "Female",
-                    Age = 30,
-                    Interests = "Writing letters.",
-                    AvatarUri = "assets/img/woman-960_720.png",
-                    Addr1 = "328 West 89th Street",
-                    Addr2 = "APT B1",
-                    Country = "USA",
-                    State = "NY",
-                    City = "New York",
-                    ZipCode = "10024"
-                });
-                _context.SaveChanges();
+                AddMockData();
             }
         }
 
@@ -129,7 +82,7 @@ namespace PeopleSearch.Controllers
         /// <remarks>If the given person object contains an Id value it will be ignored.  The new Id value
         /// of the person will be returned if the post is successful.</remarks>
         [HttpPost]
-        public IActionResult Post(PersonEntry person)
+        public IActionResult Post([FromBody]PersonEntry person)
         {
             var insane = SanityCheckAdd(person);
             if (insane != null)
@@ -153,7 +106,7 @@ namespace PeopleSearch.Controllers
         /// <param name="person">The person object to update.</param>
         /// <returns>an error status if the given person object could not be updated.</returns>
         [HttpPut("{id}")]
-        public IActionResult Put(string id, PersonEntry person)
+        public IActionResult Put(string id, [FromBody]PersonEntry person)
         {
             var insane = SanityCheckUpdate(id, person);
             if (insane != null)
@@ -266,6 +219,76 @@ namespace PeopleSearch.Controllers
                 return BadRequest(_localizer[Strings.EmptyPersonLastName].Value);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Add some people to the people DB.
+        /// Creates a couple entries with a simple numeric id to try to make manual testing easier and to
+        /// try to confuse the JS front end (for robustness testing).
+        /// </summary>
+        protected void AddMockData()
+        {
+            _context.PersonEntries.Add(new PersonEntry
+            {
+                Id = "1",
+                FirstName = "Hello",
+                LastName = "World",
+                Gender = "Planet",
+                Age = 4543000,
+                Interests = "Rotating",
+                AvatarUri = "assets/img/world.png",
+                Addr1 = "3rd Planet",
+                Country = "Milky Way",
+                State = "Orian Arm",
+                City = "Solar System",
+                ZipCode = "0",
+            });
+            _context.PersonEntries.Add(new PersonEntry
+            {
+                Id = "2",
+                FirstName = "John",
+                LastName = "Smith",
+                Gender = "Male",
+                Age = 25,
+                Interests = "Making stuff out of metal.",
+                AvatarUri = "assets/img/man-960_720.png",
+                Addr1 = "123 Main St.",
+                Country = "USA",
+                State = "UT",
+                City = "Salt Lake City",
+                ZipCode = "84101",
+            });
+            _context.PersonEntries.Add(new PersonEntry
+            {
+                FirstName = "Jane",
+                LastName = "Doe",
+                Gender = "Female",
+                Age = 30,
+                Interests = "Writing letters.",
+                AvatarUri = "assets/img/woman-960_720.png",
+                Addr1 = "328 West 89th Street",
+                Addr2 = "APT B1",
+                Country = "USA",
+                State = "NY",
+                City = "New York",
+                ZipCode = "10024",
+            });
+            _context.PersonEntries.Add(new PersonEntry
+            {
+                FirstName = "Some",
+                LastName = "Person",
+            });
+            _context.PersonEntries.Add(new PersonEntry
+            {
+                Id = "7",
+                FirstName = "Mr",
+                LastName = "Ed",
+                Gender = "Male",
+                Age = 4,
+                Interests = "Talking.",
+                AvatarUri = "assets/img/mr-ed-960_720.png",
+            });
+            _context.SaveChanges();
         }
     }
 }

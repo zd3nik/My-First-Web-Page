@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-//import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -19,7 +19,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     FormsModule,
-//    HttpClientModule,
+    HttpClientModule,
     RouterModule.forRoot([
       { path: 'people', component: PeopleComponent },
       { path: 'people/:id', component: PersonComponent },

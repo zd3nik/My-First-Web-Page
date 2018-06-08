@@ -1,5 +1,5 @@
 <div id="person-detail" *ngIf="person">
-  <img [src]="person.avatarUri || '../../assets/img/profile-placeholder.png'" />
+  <img [src]="person.avatarUri || 'assets/img/profile-placeholder.png'" />
   <p>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</p>
   <hr />
   <p><span>First Name: </span><input [(ngModel)]="person.firstName" placeholder="required" /></p>
@@ -13,4 +13,5 @@
   <p><span>City: </span><input [(ngModel)]="person.city" /></p>
   <p><span>State: </span><input [(ngModel)]="person.state" /></p>
   <p><span>Zip: </span><input [(ngModel)]="person.zipCode" /></p>
+  <button (click)="save()">Save</button>
 </div>

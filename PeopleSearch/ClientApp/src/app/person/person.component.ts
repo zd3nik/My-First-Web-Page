@@ -1,8 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { Person } from '../models/person';
-import { PeopleService } from '../people.service';
+import { PeopleService } from '../services/people.service';
 
 @Component({
   selector: 'app-person',
@@ -12,6 +12,8 @@ import { PeopleService } from '../people.service';
 })
 export class PersonComponent implements OnInit {
   @Input() person: Person;
+  @Output() personUpdated = new EventEmitter<Person>(); 
+  @Output() personAdded = new EventEmitter<Person>(); 
 
   constructor(
     private route: ActivatedRoute,
@@ -24,10 +26,30 @@ export class PersonComponent implements OnInit {
   }
 
   getPerson(): void {
-    this.person = null;
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    this.getPersonById(id);
+  }
+
+  getPersonById(id: string): void {
+    this.person = null;
+    if (id && id.trim().length > 0) {
       this.peopleService.getPerson(id).subscribe(person => this.person = person);
+    }
+  }
+
+  save(): void {
+    if (this.person) {
+      const id = this.person.id;
+      if (this.person.id) {
+        this.peopleService.updatePerson(this.person).subscribe(_ => {
+          this.personUpdated.emit(this.person);
+        });
+      } else {
+        this.peopleService.addPerson(this.person).subscribe(p => {
+          this.person = p;
+          this.personAdded.emit(this.person);
+        });
+      }
     }
   }
 }

@@ -1,12 +1,22 @@
 <div id="people-list">
-  <input placeholder="name filter" />
+  <div>
+    <span>
+      <input #filter [(ngModel)]="nameFilter" type="text" placeholder="Name Filter" />
+      <button (click)="getPeople()">Update List</button>
+    </span>
+  </div>
   <ul class="people">
+    <li (click)="add()">Add a new person</li>
     <li *ngFor="let person of people"
         [class.selected]="person === selectedPerson"
         (click)="onSelect(person)">
+      <button class="delete" title="Delete" (click)="delete(person)">X</button>
       {{person.firstName | titlecase}} {{person.lastName | titlecase}}
     </li>
   </ul>
 </div>
 
-<app-person [person]="selectedPerson"></app-person>
+<app-person [person]="selectedPerson"
+            (personUpdated)="updatePerson($event)"
+            (personAdded)="addPerson($event)">
+</app-person>
