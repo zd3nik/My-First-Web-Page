@@ -15,5 +15,6 @@ namespace PeopleSearch.Models
         }
 
         public virtual DbSet<PersonEntry> PersonEntries { get; set; }
+        public virtual DbSet<ImageEntry> ImageEntries { get; set; }
     }
 }

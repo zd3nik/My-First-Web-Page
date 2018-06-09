@@ -9,6 +9,7 @@ namespace PeopleSearch.Controllers
     [Route("api/[controller]")]
     public class PeopleController : Controller
     {
+        private static object _contextLock = new object();
         private readonly PeopleContext _context;
         private readonly IStringLocalizer<PeopleController> _localizer;
 
@@ -20,11 +21,7 @@ namespace PeopleSearch.Controllers
         {
             _context = context;
             _localizer = localizer;
-
-            if (_context.PersonEntries.Count() == 0)
-            {
-                AddMockData();
-            }
+            AddMockData();
         }
 
         /// <summary>
@@ -84,19 +81,21 @@ namespace PeopleSearch.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]PersonEntry person)
         {
-            var insane = SanityCheckAdd(person);
-            if (insane != null)
-            {
-                return insane;
+            lock (_contextLock) {
+                var insane = SanityCheckAdd(person);
+                if (insane != null)
+                {
+                    return insane;
+                }
+
+                // make sure a new Id is generated
+                person.Id = null;
+
+                _context.PersonEntries.Add(person);
+                _context.SaveChanges();
+
+                return CreatedAtRoute("GetPersonById", new { id = person.Id }, person);
             }
-
-            // make sure a new Id is generated
-            person.Id = null;
-
-            _context.PersonEntries.Add(person);
-            _context.SaveChanges();
-
-            return CreatedAtRoute("GetPersonById", new { id = person.Id }, person);
         }
 
         /// <summary>
@@ -108,27 +107,30 @@ namespace PeopleSearch.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(string id, [FromBody]PersonEntry person)
         {
-            var insane = SanityCheckUpdate(id, person);
-            if (insane != null)
+            lock (_contextLock)
             {
-                return insane;
+                var insane = SanityCheckUpdate(id, person);
+                if (insane != null)
+                {
+                    return insane;
+                }
+
+                PersonEntry existing = GetExisting(id);
+                if (existing == null)
+                {
+                    return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
+                }
+
+                // DB objects often need special care, particularly regarding their Ids, when updating.
+                // Do a deep copy from person to existing where the existing object keeps its own Ids.
+                existing.Copy(person);
+
+                // NOTE: there is a race condition between GetExisting() and Update() calls
+                _context.PersonEntries.Update(existing);
+                _context.SaveChanges();
+
+                return NoContent();
             }
-
-            PersonEntry existing = GetExisting(id);
-            if (existing == null)
-            {
-                return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
-            }
-
-            // DB objects often need special care, particularly regarding their Ids, when updating.
-            // Do a deep copy from person to existing where the existing object keeps its own Ids.
-            existing.Copy(person);
-
-            // NOTE: there is a race condition between GetExisting() and Update() calls
-            _context.PersonEntries.Update(existing);
-            _context.SaveChanges();
-
-            return NoContent();
         }
 
         /// <summary>
@@ -139,21 +141,24 @@ namespace PeopleSearch.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            lock (_contextLock)
             {
-                return BadRequest(_localizer[Strings.EmptyPersonId].Value);
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    return BadRequest(_localizer[Strings.EmptyPersonId].Value);
+                }
+
+                PersonEntry person = GetExisting(id);
+                if (person == null)
+                {
+                    return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
+                }
+
+                _context.PersonEntries.Remove(person);
+                _context.SaveChanges();
+
+                return NoContent();
             }
-
-            PersonEntry person = GetExisting(id);
-            if (person == null)
-            {
-                return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
-            }
-
-            _context.PersonEntries.Remove(person);
-            _context.SaveChanges();
-
-            return NoContent();
         }
 
         /// <summary>
@@ -228,67 +233,74 @@ namespace PeopleSearch.Controllers
         /// </summary>
         protected void AddMockData()
         {
-            _context.PersonEntries.Add(new PersonEntry
+            lock (_contextLock)
             {
-                Id = "1",
-                FirstName = "Hello",
-                LastName = "World",
-                Gender = "Planet",
-                Age = 4543000,
-                Interests = "Rotating",
-                AvatarUri = "assets/img/world.png",
-                Addr1 = "3rd Planet",
-                Country = "Milky Way",
-                State = "Orian Arm",
-                City = "Solar System",
-                ZipCode = "0",
-            });
-            _context.PersonEntries.Add(new PersonEntry
-            {
-                Id = "2",
-                FirstName = "John",
-                LastName = "Smith",
-                Gender = "Male",
-                Age = 25,
-                Interests = "Making stuff out of metal.",
-                AvatarUri = "assets/img/man-960_720.png",
-                Addr1 = "123 Main St.",
-                Country = "USA",
-                State = "UT",
-                City = "Salt Lake City",
-                ZipCode = "84101",
-            });
-            _context.PersonEntries.Add(new PersonEntry
-            {
-                FirstName = "Jane",
-                LastName = "Doe",
-                Gender = "Female",
-                Age = 30,
-                Interests = "Writing letters.",
-                AvatarUri = "assets/img/woman-960_720.png",
-                Addr1 = "328 West 89th Street",
-                Addr2 = "APT B1",
-                Country = "USA",
-                State = "NY",
-                City = "New York",
-                ZipCode = "10024",
-            });
-            _context.PersonEntries.Add(new PersonEntry
-            {
-                FirstName = "Some",
-                LastName = "Person",
-            });
-            _context.PersonEntries.Add(new PersonEntry
-            {
-                Id = "7",
-                FirstName = "Mr",
-                LastName = "Ed",
-                Gender = "Male",
-                Age = 4,
-                Interests = "Talking.",
-                AvatarUri = "assets/img/mr-ed-960_720.png",
-            });
-            _context.SaveChanges();
+                if (_context.PersonEntries.Count() > 0)
+                {
+                    return;
+                }
+                _context.PersonEntries.Add(new PersonEntry
+                {
+                    Id = "1",
+                    FirstName = "Hello",
+                    LastName = "World",
+                    Gender = "Planet",
+                    Age = 4543000,
+                    Interests = "Rotating",
+                    AvatarUri = "world.png",
+                    Addr1 = "3rd Planet",
+                    Country = "Milky Way",
+                    State = "Orian Arm",
+                    City = "Solar System",
+                    ZipCode = "0",
+                });
+                _context.PersonEntries.Add(new PersonEntry
+                {
+                    Id = "2",
+                    FirstName = "John",
+                    LastName = "Smith",
+                    Gender = "Male",
+                    Age = 25,
+                    Interests = "Making stuff out of metal.",
+                    AvatarUri = "man_960_720.png",
+                    Addr1 = "123 Main St.",
+                    Country = "USA",
+                    State = "UT",
+                    City = "Salt Lake City",
+                    ZipCode = "84101",
+                });
+                _context.PersonEntries.Add(new PersonEntry
+                {
+                    FirstName = "Jane",
+                    LastName = "Doe",
+                    Gender = "Female",
+                    Age = 30,
+                    Interests = "Writing letters.",
+                    AvatarUri = "woman_960_720.png",
+                    Addr1 = "328 West 89th Street",
+                    Addr2 = "APT B1",
+                    Country = "USA",
+                    State = "NY",
+                    City = "New York",
+                    ZipCode = "10024",
+                });
+                _context.PersonEntries.Add(new PersonEntry
+                {
+                    FirstName = "Some",
+                    LastName = "Person",
+                });
+                _context.PersonEntries.Add(new PersonEntry
+                {
+                    Id = "7",
+                    FirstName = "Mr",
+                    LastName = "Ed",
+                    Gender = "Male",
+                    Age = 4,
+                    Interests = "Talking.",
+                    AvatarUri = "mr_ed_960_720.png",
+                });
+                _context.SaveChanges();
+            }
         }
     }
 }

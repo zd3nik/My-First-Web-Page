@@ -64,7 +64,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPeople(name);
             Assert.IsAssignableFrom<IEnumerable<PersonEntry>>(result);
             Assert.Equal(5, GetCount(result));
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -91,7 +91,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPeople(name);
             Assert.IsAssignableFrom<IEnumerable<PersonEntry>>(result);
             Assert.Equal(count, GetCount(result));
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -104,7 +104,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPeople(name);
             Assert.IsAssignableFrom<IEnumerable<PersonEntry>>(result);
             Assert.Equal(0, GetCount(result));
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -119,7 +119,7 @@ namespace PeopleSearch.Tests
             Assert.Equal(id, result.Value.Id);
             Assert.Equal(first, result.Value.FirstName);
             Assert.Equal(last, result.Value.LastName);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -136,7 +136,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPersonById(id);
             Assert.IsAssignableFrom<ActionResult<PersonEntry>>(result);
             Assert.IsType<BadRequestObjectResult>(result.Result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -152,7 +152,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPersonById(id);
             Assert.IsAssignableFrom<ActionResult<PersonEntry>>(result);
             Assert.IsType<NotFoundObjectResult>(result.Result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -237,7 +237,7 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Post(entry);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Fact]
@@ -245,7 +245,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Post(null);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -286,7 +286,7 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Put(id, entry);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Fact]
@@ -294,7 +294,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Put("1", null);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Fact]
@@ -308,7 +308,7 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Put("2", entry);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -331,7 +331,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Delete(id);
             Assert.IsType<NotFoundObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
         [Theory]
@@ -342,10 +342,10 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Delete(id);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyChangeOrSave();
+            VerifyNoChangeOrSave();
         }
 
-        private void VerifyChangeOrSave()
+        private void VerifyNoChangeOrSave()
         {
             _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Never());
             _people.Verify(p => p.Update(It.IsAny<PersonEntry>()), Times.Never());

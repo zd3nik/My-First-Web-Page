@@ -22,8 +22,8 @@ export class DashboardComponent implements OnInit {
   }
 
   avatarUri(person: Person): string {
-    return person && person.avatarUri
-      ? person.avatarUri
-      : '../../assets/img/profile-placeholder.png';
+    return person && person.avatarUri && person.avatarUri.trim().length > 0
+      ? `url(api/image/${person.avatarUri})`
+      : 'url(api/image/profile_placeholder.png)';
   }
 }

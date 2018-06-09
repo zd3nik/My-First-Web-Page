@@ -1,7 +1,5 @@
 <div id="person-detail" *ngIf="person">
-  <div id="avatar-img"
-       [style.background-image]="'url(' + avatarUri() + ')'">
-  </div>
+  <div id="avatar-img" [style.background-image]="avatarUri()"></div>
   <p>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</p>
   <hr />
   <p><span>First Name: </span><input [(ngModel)]="person.firstName" placeholder="required" /></p>

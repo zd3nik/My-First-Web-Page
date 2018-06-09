@@ -54,8 +54,8 @@ export class PersonComponent implements OnInit {
   }
 
   avatarUri(): string {
-    return this.person.avatarUri
-      ? this.person.avatarUri
-      : '../../assets/img/profile-placeholder.png';
+    return this.person && this.person.avatarUri && this.person.avatarUri.trim().length > 0
+      ? `url(api/image/${this.person.avatarUri})`
+      : 'url(api/image/profile_placeholder.png)';
   }
 }

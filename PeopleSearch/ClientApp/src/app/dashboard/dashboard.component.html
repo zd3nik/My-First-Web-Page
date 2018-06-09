@@ -1,7 +1,6 @@
 <div class="grid">
   <a *ngFor="let person of people" routerLink="/people/{{person.id}}">
-    <div id="avatar-img"
-         [style.background-image]="'url(' + avatarUri(person) + ')'">
+    <div id="avatar-img" [style.background-image]="avatarUri(person)">
       <div class="person-filler"></div>
       <div class="person-name">
         <h4>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</h4>
