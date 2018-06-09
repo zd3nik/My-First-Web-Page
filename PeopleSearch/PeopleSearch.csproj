@@ -28,20 +28,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ClientApp\src\assets\img\horse-head.jpg" />
+    <Content Include="ClientApp\src\assets\img\man-960_720.png" />
+    <Content Include="ClientApp\src\assets\img\mr-ed-960_720.png" />
     <Content Include="ClientApp\src\assets\img\people-network-header.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\assets\horse-head.jpg" />
-    <None Include="wwwroot\assets\man-960_720.png" />
-    <None Include="wwwroot\assets\mr-ed-960_720.png" />
-    <None Include="wwwroot\assets\profile-placeholder.png" />
-    <None Include="wwwroot\assets\woman-960_720.png" />
-    <None Include="wwwroot\assets\world.png" />
+    <Content Include="ClientApp\src\assets\img\profile-placeholder.png" />
+    <Content Include="ClientApp\src\assets\img\woman-960_720.png" />
+    <Content Include="ClientApp\src\assets\img\world.png" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\models\person.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -20,4 +20,10 @@ export class DashboardComponent implements OnInit {
   getPeople(): void {
     this.peopleService.getPeople().subscribe(people => this.people = people);
   }
+
+  avatarUri(person: Person): string {
+    return person && person.avatarUri
+      ? person.avatarUri
+      : '../../assets/img/profile-placeholder.png';
+  }
 }

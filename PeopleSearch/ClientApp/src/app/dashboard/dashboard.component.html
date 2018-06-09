@@ -1,8 +1,11 @@
-<h3>Top People</h3>
-<div class="grid grd-pad">
-  <a *ngFor="let person of people" class="col-1-4" routerLink="/people/{{person.id}}">
-    <div class="module person">
-      <h4>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</h4>
+<div class="grid">
+  <a *ngFor="let person of people" routerLink="/people/{{person.id}}">
+    <div id="avatar-img"
+         [style.background-image]="'url(' + avatarUri(person) + ')'">
+      <div class="person-filler"></div>
+      <div class="person-name">
+        <h4>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</h4>
+      </div>
     </div>
   </a>
 </div>

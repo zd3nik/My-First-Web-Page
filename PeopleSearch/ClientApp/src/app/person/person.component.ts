@@ -52,4 +52,10 @@ export class PersonComponent implements OnInit {
       }
     }
   }
+
+  avatarUri(): string {
+    return this.person.avatarUri
+      ? this.person.avatarUri
+      : '../../assets/img/profile-placeholder.png';
+  }
 }
