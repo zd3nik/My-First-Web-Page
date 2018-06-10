@@ -4,12 +4,14 @@ import { of } from 'rxjs/observable/of';
 import { catchError, tap } from 'rxjs/operators';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Person } from '../models/person';
+import { AvatarImage } from '../models/avatar-image';
 
 // TODO send messages to logging service instead of console
 
 @Injectable()
 export class PeopleService {
   private peopleUrl = 'api/people';
+  private imageUrl = 'api/image';
 
   constructor(private httpClient: HttpClient) { }
 
@@ -33,6 +35,10 @@ export class PeopleService {
   deletePerson(id: string): Observable<any> {
     return this.httpDelete('/' + id);
   }
+
+  //uploadPersonAvatar(id: string, avatar: AvatarImage): Observable<any> {
+  //  console.log(`begin httpPust: ${this.imageUrl}`, avatar);
+    //}
 
   private httpGet<T>(path = '', defaultResult: T, params?: HttpParams): Observable<T> {
     const url = this.peopleUrl + path;

@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\models\avatar-image.ts" />
     <None Remove="ClientApp\src\app\models\person.ts" />
   </ItemGroup>
 
@@ -32,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\models\avatar-image.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\models\person.ts" />
   </ItemGroup>
 

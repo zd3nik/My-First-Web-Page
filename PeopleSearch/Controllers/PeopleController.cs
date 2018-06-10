@@ -81,13 +81,13 @@ namespace PeopleSearch.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]PersonEntry person)
         {
-            lock (_contextLock) {
-                var insane = SanityCheckAdd(person);
-                if (insane != null)
-                {
-                    return insane;
-                }
+            var insane = SanityCheckAdd(person);
+            if (insane != null)
+            {
+                return insane;
+            }
 
+            lock (_contextLock) {
                 // make sure a new Id is generated
                 person.Id = null;
 
@@ -107,14 +107,14 @@ namespace PeopleSearch.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(string id, [FromBody]PersonEntry person)
         {
+            var insane = SanityCheckUpdate(id, person);
+            if (insane != null)
+            {
+                return insane;
+            }
+
             lock (_contextLock)
             {
-                var insane = SanityCheckUpdate(id, person);
-                if (insane != null)
-                {
-                    return insane;
-                }
-
                 PersonEntry existing = GetExisting(id);
                 if (existing == null)
                 {
@@ -141,13 +141,13 @@ namespace PeopleSearch.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest(_localizer[Strings.EmptyPersonId].Value);
+            }
+
             lock (_contextLock)
             {
-                if (string.IsNullOrWhiteSpace(id))
-                {
-                    return BadRequest(_localizer[Strings.EmptyPersonId].Value);
-                }
-
                 PersonEntry person = GetExisting(id);
                 if (person == null)
                 {
