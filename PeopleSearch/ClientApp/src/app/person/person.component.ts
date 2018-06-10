@@ -13,7 +13,8 @@ import { PeopleService } from '../services/people.service';
 export class PersonComponent implements OnInit {
   @Input() person: Person;
   @Output() personUpdated = new EventEmitter<Person>(); 
-  @Output() personAdded = new EventEmitter<Person>(); 
+  @Output() personAdded = new EventEmitter<Person>();
+  private showEditor = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -23,6 +24,21 @@ export class PersonComponent implements OnInit {
 
   ngOnInit() {
     this.getPerson();
+  }
+
+  changeAvatar(): void {
+    console.log("hiding editor");
+    this.showEditor = false;
+  }
+
+  uploadImg(files): void {
+    console.log(JSON.stringify(files));
+    this.showEditor = true;
+  }
+
+  cancelChangeAvatar(): void {
+    console.log("upload clicked!");
+    this.showEditor = true;
   }
 
   getPerson(): void {

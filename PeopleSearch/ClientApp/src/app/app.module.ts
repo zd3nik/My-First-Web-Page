@@ -8,7 +8,6 @@ import { AppComponent } from './app.component';
 import { PersonComponent } from './person/person.component';
 import { PeopleComponent } from './people/people.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { ImageUploaderComponent } from './image-uploader/image-uploader.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +15,6 @@ import { ImageUploaderComponent } from './image-uploader/image-uploader.componen
     PersonComponent,
     PeopleComponent,
     DashboardComponent,
-    ImageUploaderComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

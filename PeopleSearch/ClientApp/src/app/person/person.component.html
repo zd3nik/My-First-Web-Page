@@ -1,17 +1,30 @@
 <div id="person-detail" *ngIf="person">
-  <div id="avatar-img" [style.background-image]="avatarUri()"></div>
+  <div id="avatar-img" [style.background-image]="avatarUri()">
+    <div class="avatar-spacer"></div>
+    <div class="avatar-spacer" id="semi-transparent" (click)="changeAvatar()">Change</div>
+    <div class="avatar-spacer"></div>
+  </div>
   <p>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</p>
   <hr />
-  <p><span>First Name: </span><input [(ngModel)]="person.firstName" placeholder="required" /></p>
-  <p><span>Last Name: </span><input [(ngModel)]="person.lastName" placeholder="required" /></p>
-  <p><span>Gender: </span><input [(ngModel)]="person.gender" /></p>
-  <p><span>Age: </span><input [(ngModel)]="person.age" /></p>
-  <p><span>Interests: </span><input [(ngModel)]="person.interests" /></p>
-  <p><span>Address Line 1: </span><input [(ngModel)]="person.addr1" /></p>
-  <p><span>Address Line 2: </span><input [(ngModel)]="person.addr2" /></p>
-  <p><span>Country: </span><input [(ngModel)]="person.country" /></p>
-  <p><span>City: </span><input [(ngModel)]="person.city" /></p>
-  <p><span>State: </span><input [(ngModel)]="person.state" /></p>
-  <p><span>Zip: </span><input [(ngModel)]="person.zipCode" /></p>
-  <button (click)="save()">Save</button>
+  <div [class.hideme]="!showEditor">
+    <p><span>First Name: </span><input [(ngModel)]="person.firstName" placeholder="required" /></p>
+    <p><span>Last Name: </span><input [(ngModel)]="person.lastName" placeholder="required" /></p>
+    <p><span>Gender: </span><input [(ngModel)]="person.gender" /></p>
+    <p><span>Age: </span><input [(ngModel)]="person.age" /></p>
+    <p><span>Interests: </span><input [(ngModel)]="person.interests" /></p>
+    <p><span>Address Line 1: </span><input [(ngModel)]="person.addr1" /></p>
+    <p><span>Address Line 2: </span><input [(ngModel)]="person.addr2" /></p>
+    <p><span>Country: </span><input [(ngModel)]="person.country" /></p>
+    <p><span>City: </span><input [(ngModel)]="person.city" /></p>
+    <p><span>State: </span><input [(ngModel)]="person.state" /></p>
+    <p><span>Zip: </span><input [(ngModel)]="person.zipCode" /></p>
+    <button (click)="save()">Save</button>
+  </div>
+  <div [class.hideme]="showEditor">
+    <h3>Upload a new avatar image</h3>
+    <input type="file" id="avatarFile" name="avatarFile"
+           accept="image/png, image/jpeg, image/jpg"
+           onchange="this.uploadImg(avatarFile)" />
+    <button (click)="cancelChangeAvatar()">Cancel</button>
+  </div>
 </div>

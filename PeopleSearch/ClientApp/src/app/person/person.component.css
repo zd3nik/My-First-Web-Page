@@ -2,3 +2,29 @@
   float: left;
   width: 75%;
 }
+
+.avatar-spacer {
+  height: 33.33%;
+  min-height: 33.33%;
+  width: 100%;
+  min-width: 100%;
+}
+
+.hideme {
+  visibility: hidden;
+  max-height: 0;
+}
+
+#semi-transparent {
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+  color: transparent;
+}
+
+  #semi-transparent:hover {
+    color: white;
+    background-color: #90aeae;
+    opacity: 0.8;
+  }
