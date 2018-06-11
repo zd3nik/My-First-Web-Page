@@ -21,7 +21,15 @@ namespace PeopleSearch.Controllers
         {
             _context = context;
             _localizer = localizer;
-            AddMockData();
+
+            lock (_contextLock)
+            {
+                if (_context.PersonEntries.Count() == 0)
+                {
+                    DbUtils.AddPeople(_context);
+                    context.SaveChanges();
+                }
+            }
         }
 
         /// <summary>
@@ -62,7 +70,7 @@ namespace PeopleSearch.Controllers
             {
                 return BadRequest(_localizer[Strings.EmptyPersonId].Value);
             }
-            PersonEntry entry = GetExisting(id);
+            PersonEntry entry = GetExistingPerson(id);
             if (entry == null)
             {
                 return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
@@ -115,7 +123,7 @@ namespace PeopleSearch.Controllers
 
             lock (_contextLock)
             {
-                PersonEntry existing = GetExisting(id);
+                PersonEntry existing = GetExistingPerson(id);
                 if (existing == null)
                 {
                     return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
@@ -148,7 +156,7 @@ namespace PeopleSearch.Controllers
 
             lock (_contextLock)
             {
-                PersonEntry person = GetExisting(id);
+                PersonEntry person = GetExistingPerson(id);
                 if (person == null)
                 {
                     return NotFound(_localizer[Strings.PersonIdNotFound, id].Value);
@@ -166,7 +174,7 @@ namespace PeopleSearch.Controllers
         /// </summary>
         /// <param name="id">The Id of the person entry to get.</param>
         /// <returns>null if the specified person Id is not in the DB.</returns>
-        protected PersonEntry GetExisting(string id)
+        protected PersonEntry GetExistingPerson(string id)
         {
             // PersonEntries.Find() was not working with the unit tests DB context mock.
             // Using this as a work-around because figuring out what was wrong with the mock
@@ -224,83 +232,6 @@ namespace PeopleSearch.Controllers
                 return BadRequest(_localizer[Strings.EmptyPersonLastName].Value);
             }
             return null;
-        }
-
-        /// <summary>
-        /// Add some people to the people DB.
-        /// Creates a couple entries with a simple numeric id to try to make manual testing easier and to
-        /// try to confuse the JS front end (for robustness testing).
-        /// </summary>
-        protected void AddMockData()
-        {
-            lock (_contextLock)
-            {
-                if (_context.PersonEntries.Count() > 0)
-                {
-                    return;
-                }
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    Id = "1",
-                    FirstName = "Hello",
-                    LastName = "World",
-                    Gender = "Planet",
-                    Age = 4543000,
-                    Interests = "Rotating",
-                    AvatarUri = "world.png",
-                    Addr1 = "3rd Planet",
-                    Country = "Milky Way",
-                    State = "Orian Arm",
-                    City = "Solar System",
-                    ZipCode = "0",
-                });
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    Id = "2",
-                    FirstName = "John",
-                    LastName = "Smith",
-                    Gender = "Male",
-                    Age = 25,
-                    Interests = "Making stuff out of metal.",
-                    AvatarUri = "man_960_720.png",
-                    Addr1 = "123 Main St.",
-                    Country = "USA",
-                    State = "UT",
-                    City = "Salt Lake City",
-                    ZipCode = "84101",
-                });
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    FirstName = "Jane",
-                    LastName = "Doe",
-                    Gender = "Female",
-                    Age = 30,
-                    Interests = "Writing letters.",
-                    AvatarUri = "woman_960_720.png",
-                    Addr1 = "328 West 89th Street",
-                    Addr2 = "APT B1",
-                    Country = "USA",
-                    State = "NY",
-                    City = "New York",
-                    ZipCode = "10024",
-                });
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    FirstName = "Some",
-                    LastName = "Person",
-                });
-                _context.PersonEntries.Add(new PersonEntry
-                {
-                    Id = "7",
-                    FirstName = "Mr",
-                    LastName = "Ed",
-                    Gender = "Male",
-                    Age = 4,
-                    Interests = "Talking.",
-                    AvatarUri = "mr_ed_960_720.png",
-                });
-                _context.SaveChanges();
-            }
         }
     }
 }

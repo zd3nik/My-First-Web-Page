@@ -22,9 +22,8 @@
   </div>
   <div [class.hideme]="showEditor">
     <h3>Upload a new avatar image</h3>
-    <input type="file" id="avatarFile" name="avatarFile"
-           accept="image/png, image/jpeg, image/jpg"
-           onchange="this.uploadImg(avatarFile)" />
+    <input type="file" accept="image/png, image/jpeg, image/jpg"
+           (change)="uploadAvatarImage($event)" />
     <button (click)="cancelChangeAvatar()">Cancel</button>
   </div>
 </div>

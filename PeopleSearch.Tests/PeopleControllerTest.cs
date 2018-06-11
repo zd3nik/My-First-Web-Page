@@ -3,51 +3,31 @@ using Moq;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 using PeopleSearch.Controllers;
 using PeopleSearch.Models;
 
 namespace PeopleSearch.Tests
 {
-    public class PeopleControllerTest
+    public class PeopleControllerTest : ControllerTestBase
     {
         private readonly PeopleController _controller;
-        private Mock<PeopleContext> _context = new Mock<PeopleContext>();
-        private Mock<DbSet<PersonEntry>> _people = new Mock<DbSet<PersonEntry>>();
-        private Mock<IStringLocalizer<PeopleController>> _localizer = new Mock<IStringLocalizer<PeopleController>>();
 
         public PeopleControllerTest()
         {
-            List<PersonEntry> testData = new List<PersonEntry>();
-            var queryable = testData.AsQueryable();
+            MockDbContext();
 
-            _people.As<IQueryable<PersonEntry>>().Setup(m => m.Provider).Returns(queryable.Provider);
-            _people.As<IQueryable<PersonEntry>>().Setup(m => m.Expression).Returns(queryable.Expression);
-            _people.As<IQueryable<PersonEntry>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-            _people.As<IQueryable<PersonEntry>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
-            _people.Setup(d => d.Add(It.IsAny<PersonEntry>())).Callback<PersonEntry>((s) => testData.Add(s));
+            // construct the controller we're testing - this will populate _people DbSet
+            _controller = new PeopleController(_context.Object, _peopleLocalizer.Object);
 
-            _localizer.Setup(l => l[It.IsAny<string>()]).Returns((string s) => new LocalizedString(s, s));
-            _localizer.Setup(l => l[It.IsAny<string>(), It.IsAny<System.Object[]>()])
-                .Returns((string s, System.Object[] a) => new LocalizedString(s, s));
-
-            var ls = _localizer.Object[Strings.PersonIdMismatch, 123];
-            Assert.NotNull(ls);
-            Assert.Equal(Strings.PersonIdMismatch, ls.Name);
-            Assert.Equal(Strings.PersonIdMismatch, ls.Value);
-
-            _context.Setup(c => c.PersonEntries).Returns(_people.Object);
-            _controller = new PeopleController(_context.Object, _localizer.Object);
-
-            // verify the DB context was seeded
+            // verify the _people DbSet was populated
             _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Exactly(5));
             Assert.Equal(5, _context.Object.PersonEntries.Count());
-            _context.Verify(c => c.SaveChanges());
+
+            VerifySaveDbOnce();
 
             _context.ResetCalls();
             _people.ResetCalls();
-            _localizer.ResetCalls();
+            _peopleLocalizer.ResetCalls();
         }
 
         [Theory]
@@ -64,7 +44,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPeople(name);
             Assert.IsAssignableFrom<IEnumerable<PersonEntry>>(result);
             Assert.Equal(5, GetCount(result));
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -91,7 +71,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPeople(name);
             Assert.IsAssignableFrom<IEnumerable<PersonEntry>>(result);
             Assert.Equal(count, GetCount(result));
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -104,7 +84,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPeople(name);
             Assert.IsAssignableFrom<IEnumerable<PersonEntry>>(result);
             Assert.Equal(0, GetCount(result));
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -119,7 +99,7 @@ namespace PeopleSearch.Tests
             Assert.Equal(id, result.Value.Id);
             Assert.Equal(first, result.Value.FirstName);
             Assert.Equal(last, result.Value.LastName);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -136,7 +116,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPersonById(id);
             Assert.IsAssignableFrom<ActionResult<PersonEntry>>(result);
             Assert.IsType<BadRequestObjectResult>(result.Result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -152,7 +132,7 @@ namespace PeopleSearch.Tests
             var result = _controller.GetPersonById(id);
             Assert.IsAssignableFrom<ActionResult<PersonEntry>>(result);
             Assert.IsType<NotFoundObjectResult>(result.Result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -183,7 +163,8 @@ namespace PeopleSearch.Tests
             // I expect it has to do with the DB context mock not being setup correctly
             // Assert.False(string.IsNullOrWhiteSpace(created.Id));
 
-            VerifyAddAndSave();
+            VerifyAddPerson();
+            VerifySaveDbOnce();
         }
 
         [Theory]
@@ -218,7 +199,8 @@ namespace PeopleSearch.Tests
             // Assert.False(string.IsNullOrWhiteSpace(created.Id));
             // Assert.NotEqual(id, created.Id);
 
-            VerifyAddAndSave();
+            VerifyAddPerson();
+            VerifySaveDbOnce();
         }
 
         [Theory]
@@ -237,7 +219,7 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Post(entry);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Fact]
@@ -245,7 +227,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Post(null);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -263,7 +245,8 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Put(id, entry);
             Assert.IsType<NoContentResult>(result);
-            VerifyUpdateAndSave();
+            VerifyUpdatePerson();
+            VerifySaveDbOnce();
         }
 
         [Theory]
@@ -286,7 +269,7 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Put(id, entry);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Fact]
@@ -294,7 +277,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Put("1", null);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Fact]
@@ -308,7 +291,7 @@ namespace PeopleSearch.Tests
             };
             var result = _controller.Put("2", entry);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -318,7 +301,8 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Delete(id);
             Assert.IsType<NoContentResult>(result);
-            VerifyRemoveAndSave();
+            VerifyRemovePerson();
+            VerifySaveDbOnce();
         }
 
         [Theory]
@@ -331,7 +315,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Delete(id);
             Assert.IsType<NotFoundObjectResult>(result);
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -342,49 +326,7 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.Delete(id);
             Assert.IsType<BadRequestObjectResult>(result);
-            VerifyNoChangeOrSave();
-        }
-
-        private void VerifyNoChangeOrSave()
-        {
-            _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Never());
-            _people.Verify(p => p.Update(It.IsAny<PersonEntry>()), Times.Never());
-            _people.Verify(p => p.Remove(It.IsAny<PersonEntry>()), Times.Never());
-            _context.Verify(c => c.SaveChanges(), Times.Never());
-        }
-
-        private void VerifyAddAndSave()
-        {
-            _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Once());
-            _people.Verify(p => p.Update(It.IsAny<PersonEntry>()), Times.Never());
-            _people.Verify(p => p.Remove(It.IsAny<PersonEntry>()), Times.Never());
-            _context.Verify(c => c.SaveChanges(), Times.Once());
-        }
-
-        private void VerifyUpdateAndSave()
-        {
-            _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Never());
-            _people.Verify(p => p.Update(It.IsAny<PersonEntry>()), Times.Once());
-            _people.Verify(p => p.Remove(It.IsAny<PersonEntry>()), Times.Never());
-            _context.Verify(c => c.SaveChanges(), Times.Once());
-        }
-
-        private void VerifyRemoveAndSave()
-        {
-            _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Never());
-            _people.Verify(p => p.Update(It.IsAny<PersonEntry>()), Times.Never());
-            _people.Verify(p => p.Remove(It.IsAny<PersonEntry>()), Times.Once());
-            _context.Verify(c => c.SaveChanges(), Times.Once());
-        }
-
-        private int GetCount<T>(IEnumerable<T> items)
-        {
-            int count = 0;
-            foreach (var item in items)
-            {
-                count++;
-            }
-            return count;
+            VerifyNoDbChanges();
         }
     }
 }

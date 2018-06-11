@@ -1,44 +1,43 @@
 ﻿using Xunit;
 using Moq;
-using Microsoft.EntityFrameworkCore;
 using PeopleSearch.Controllers;
 using PeopleSearch.Models;
 using System.Linq;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Resources;
 using System.Globalization;
+using System;
 
 namespace PeopleSearch.Tests
 {
-    public class ImageControllerTest
+    public class ImageControllerTest : ControllerTestBase
     {
         private readonly ImageController _controller;
-        private Mock<PeopleContext> _context = new Mock<PeopleContext>();
-        private Mock<DbSet<ImageEntry>> _images = new Mock<DbSet<ImageEntry>>();
 
         public ImageControllerTest()
         {
-            List<ImageEntry> testData = new List<ImageEntry>();
-            var queryable = testData.AsQueryable();
+            MockDbContext();
 
-            _images.As<IQueryable<ImageEntry>>().Setup(m => m.Provider).Returns(queryable.Provider);
-            _images.As<IQueryable<ImageEntry>>().Setup(m => m.Expression).Returns(queryable.Expression);
-            _images.As<IQueryable<ImageEntry>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-            _images.As<IQueryable<ImageEntry>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
-            _images.Setup(d => d.Add(It.IsAny<ImageEntry>())).Callback<ImageEntry>((s) => testData.Add(s));
+            // populate the _people DBSet
+            DbUtils.AddPeople(_context.Object);
 
-            _context.Setup(c => c.ImageEntries).Returns(_images.Object);
-            _controller = new ImageController(_context.Object);
+            // construct the controller we're testing - this will populate _images DbSet
+            _controller = new ImageController(_context.Object, _imageLocalizer.Object);
 
-            // verify the DB context was seeded
+            // verify the _images DbSet was populated
             _images.Verify(p => p.Add(It.IsAny<ImageEntry>()), Times.Exactly(5));
             Assert.Equal(5, _context.Object.ImageEntries.Count());
-            _context.Verify(c => c.SaveChanges());
+
+            // verify the _people DbSet was populated
+            _people.Verify(p => p.Add(It.IsAny<PersonEntry>()), Times.Exactly(5));
+            Assert.Equal(5, _context.Object.PersonEntries.Count());
+
+            VerifySaveDbOnce();
 
             _context.ResetCalls();
             _images.ResetCalls();
+            _people.ResetCalls();
+            _imageLocalizer.ResetCalls();
         }
 
         [Theory]
@@ -58,7 +57,7 @@ namespace PeopleSearch.Tests
             Assert.Equal(size, file.FileContents.Length);
             Assert.Equal("image/png; charset=UTF-8", file.ContentType);
 
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -74,8 +73,8 @@ namespace PeopleSearch.Tests
         {
             var result = _controller.GetImageById(id);
             Assert.IsAssignableFrom<ActionResult<byte[]>>(result);
-            Assert.IsType<BadRequestResult>(result.Result);
-            VerifyNoChangeOrSave();
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -84,9 +83,6 @@ namespace PeopleSearch.Tests
         public void PutImage_WithIdNoPersonId_SuccessfulUpdate(string name)
         {
             byte[] data = GetEmbeddedImage(name);
-            Assert.NotNull(data);
-            Assert.True(data.Length > 0);
-
             AvatarImage avatar = new AvatarImage
             {
                 Id = name + ".png",
@@ -96,7 +92,8 @@ namespace PeopleSearch.Tests
             var result = _controller.Put(avatar);
             Assert.IsType<OkResult>(result);
 
-            VerifyUpdateAndSave();
+            VerifyUpdateImage();
+            VerifySaveDbOnce();
         }
 
         [Theory]
@@ -106,9 +103,6 @@ namespace PeopleSearch.Tests
         public void PutImage_WithIdNoPersonId_Conflict(string name)
         {
             byte[] data = GetEmbeddedImage(name);
-            Assert.NotNull(data);
-            Assert.True(data.Length > 0);
-
             AvatarImage avatar = new AvatarImage
             {
                 Id = name + ".png",
@@ -116,23 +110,18 @@ namespace PeopleSearch.Tests
             };
 
             var result = _controller.Put(avatar);
-            Assert.IsType<ConflictResult>(result);
+            Assert.IsType<ConflictObjectResult>(result);
 
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
-        [InlineData("man_960_720", "1")]
-        [InlineData("mr_ed_960_720", "2")]
-        [InlineData("profile_placeholder", "3")]
-        [InlineData("woman_960_720", "4")]
-        [InlineData("world", "5")]
+        [InlineData("man_960_720", "2")]
+        [InlineData("mr_ed_960_720", "7")]
+        [InlineData("world", "1")]
         public void PutImage_NoIdWithPersonId_SuccessfulAdd(string name, string personId)
         {
             byte[] data = GetEmbeddedImage(name);
-            Assert.NotNull(data);
-            Assert.True(data.Length > 0);
-
             AvatarImage avatar = new AvatarImage
             {
                 PersonId = personId,
@@ -142,7 +131,29 @@ namespace PeopleSearch.Tests
             var result = _controller.Put(avatar);
             Assert.IsType<OkResult>(result);
 
-            VerifyAddAndSave();
+            VerifyAddImage();
+            VerifyUpdatePerson();
+            VerifySaveDbOnce();
+        }
+
+        [Theory]
+        [InlineData("woman_960_720", "3")]
+        [InlineData("man_960_720", "4")]
+        [InlineData("mr_ed_960_720", "5")]
+        [InlineData("world", "6")]
+        public void PutImage_NoIdWithInvalidPersonId_BadRequest(string name, string personId)
+        {
+            byte[] data = GetEmbeddedImage(name);
+            AvatarImage avatar = new AvatarImage
+            {
+                PersonId = personId,
+                B64Data = Convert.ToBase64String(data)
+            };
+
+            var result = _controller.Put(avatar);
+            Assert.IsType<BadRequestObjectResult>(result);
+
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -152,9 +163,6 @@ namespace PeopleSearch.Tests
         public void PutImage_WithIdWithPersonId_SuccessfulUpdate(string name, string personId)
         {
             byte[] data = GetEmbeddedImage(name);
-            Assert.NotNull(data);
-            Assert.True(data.Length > 0);
-
             AvatarImage avatar = new AvatarImage
             {
                 Id = name + ".png",
@@ -165,19 +173,19 @@ namespace PeopleSearch.Tests
             var result = _controller.Put(avatar);
             Assert.IsType<OkResult>(result);
 
-            VerifyUpdateAndSave();
+            VerifyUpdateImage();
+            VerifyUpdatePerson();
+            VerifySaveDbOnce();
         }
 
         [Theory]
-        [InlineData("man_960_720", "100")]
-        [InlineData("mr_ed_960_720", "102")]
-        [InlineData("world", "103")]
-        public void PutImage_WithIdWithPersonId_Conflict(string name, string personId)
+        [InlineData("woman_960_720", "3")]
+        [InlineData("man_960_720", "4")]
+        [InlineData("mr_ed_960_720", "5")]
+        [InlineData("world", "6")]
+        public void PutImage_WithIdWithInvalidPersonId_Conflict(string name, string personId)
         {
             byte[] data = GetEmbeddedImage(name);
-            Assert.NotNull(data);
-            Assert.True(data.Length > 0);
-
             AvatarImage avatar = new AvatarImage
             {
                 Id = name + ".png",
@@ -186,9 +194,9 @@ namespace PeopleSearch.Tests
             };
 
             var result = _controller.Put(avatar);
-            Assert.IsType<ConflictResult>(result);
+            Assert.IsType<BadRequestObjectResult>(result);
 
-            VerifyNoChangeOrSave();
+            VerifyNoDbChanges();
         }
 
         [Theory]
@@ -206,51 +214,9 @@ namespace PeopleSearch.Tests
             };
 
             var result = _controller.Put(avatar);
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<BadRequestObjectResult>(result);
 
-            VerifyNoChangeOrSave();
-        }
-
-        private void VerifyNoChangeOrSave()
-        {
-            _images.Verify(p => p.Add(It.IsAny<ImageEntry>()), Times.Never());
-            _images.Verify(p => p.Update(It.IsAny<ImageEntry>()), Times.Never());
-            _images.Verify(p => p.Remove(It.IsAny<ImageEntry>()), Times.Never());
-            _context.Verify(c => c.SaveChanges(), Times.Never());
-        }
-
-        private void VerifyAddAndSave()
-        {
-            _images.Verify(p => p.Add(It.IsAny<ImageEntry>()), Times.Once());
-            _images.Verify(p => p.Update(It.IsAny<ImageEntry>()), Times.Never());
-            _images.Verify(p => p.Remove(It.IsAny<ImageEntry>()), Times.Never());
-            _context.Verify(c => c.SaveChanges(), Times.Once());
-        }
-
-        private void VerifyUpdateAndSave()
-        {
-            _images.Verify(p => p.Add(It.IsAny<ImageEntry>()), Times.Never());
-            _images.Verify(p => p.Update(It.IsAny<ImageEntry>()), Times.Once());
-            _images.Verify(p => p.Remove(It.IsAny<ImageEntry>()), Times.Never());
-            _context.Verify(c => c.SaveChanges(), Times.Once());
-        }
-
-        private void VerifyRemoveAndSave()
-        {
-            _images.Verify(p => p.Add(It.IsAny<ImageEntry>()), Times.Never());
-            _images.Verify(p => p.Update(It.IsAny<ImageEntry>()), Times.Never());
-            _images.Verify(p => p.Remove(It.IsAny<ImageEntry>()), Times.Once());
-            _context.Verify(c => c.SaveChanges(), Times.Once());
-        }
-
-        private int GetCount<T>(IEnumerable<T> items)
-        {
-            int count = 0;
-            foreach (var item in items)
-            {
-                count++;
-            }
-            return count;
+            VerifyNoDbChanges();
         }
 
         private byte[] GetEmbeddedImage(string name)
@@ -263,6 +229,8 @@ namespace PeopleSearch.Tests
                 var obj = images.GetObject(name);
                 if (obj is byte[] data)
                 {
+                    Assert.NotNull(data);
+                    Assert.True(data.Length > 0);
                     return data;
                 }
             }

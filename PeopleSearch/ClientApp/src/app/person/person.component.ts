@@ -31,9 +31,13 @@ export class PersonComponent implements OnInit {
     this.showEditor = false;
   }
 
-  uploadImg(files): void {
-    console.log(JSON.stringify(files));
-    this.showEditor = true;
+  uploadAvatarImage(event): void {
+    const avatarImageFile: File = event.target.files[0];
+    this.peopleService.uploadPersonAvatar(this.person.id, avatarImageFile)
+      .subscribe(res => {
+        console.log(res);
+        this.showEditor = true;
+      });
   }
 
   cancelChangeAvatar(): void {
@@ -70,8 +74,8 @@ export class PersonComponent implements OnInit {
   }
 
   avatarUri(): string {
-    return this.person && this.person.avatarUri && this.person.avatarUri.trim().length > 0
-      ? `url(api/image/${this.person.avatarUri})`
+    return this.person && this.person.avatarId && this.person.avatarId.trim().length > 0
+      ? `url(api/image/${this.person.avatarId})`
       : 'url(api/image/profile_placeholder.png)';
   }
 }

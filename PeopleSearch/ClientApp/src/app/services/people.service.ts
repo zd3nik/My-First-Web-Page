@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { of } from 'rxjs/observable/of';
 import { catchError, tap } from 'rxjs/operators';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Person } from '../models/person';
 import { AvatarImage } from '../models/avatar-image';
 
@@ -17,31 +17,32 @@ export class PeopleService {
 
   getPeople(nameFilter = ''): Observable<Person[]> {
     const params = new HttpParams().set('name', nameFilter);
-    return this.httpGet<Person[]>('', [], params);
+    return this.httpGet<Person[]>(this.peopleUrl, [], params);
   }
 
   getPerson(id: string): Observable<Person> {
-    return this.httpGet<Person>('/' + id, { id: id });
+    return this.httpGet<Person>(this.peopleUrl + '/' + id, { id: id });
   }
 
   updatePerson(person: Person): Observable<any> {
-    return this.httpPut('/' + person.id, person);
+    return this.httpPut(this.peopleUrl + '/' + person.id, person);
   }
 
   addPerson(person: Person): Observable<any> {
-    return this.httpPost(person);
+    return this.httpPost(this.peopleUrl, person);
   }
 
   deletePerson(id: string): Observable<any> {
-    return this.httpDelete('/' + id);
+    return this.httpDelete(this.peopleUrl + '/' + id);
   }
 
-  //uploadPersonAvatar(id: string, avatar: AvatarImage): Observable<any> {
-  //  console.log(`begin httpPust: ${this.imageUrl}`, avatar);
-    //}
+  uploadPersonAvatar(personId: string, avatarImageFile: File): Observable<any> {
+    const fd = new FormData();
+    fd.append("image", avatarImageFile, avatarImageFile.name);
+    return this.httpPost(this.imageUrl + '/' + personId, fd);
+  }
 
-  private httpGet<T>(path = '', defaultResult: T, params?: HttpParams): Observable<T> {
-    const url = this.peopleUrl + path;
+  private httpGet<T>(url: string, defaultResult: T, params?: HttpParams): Observable<T> {
     console.log(`begin httpGet: ${url}`);
     return this.httpClient.get<T>(url, { params: params })
       .pipe(
@@ -50,8 +51,7 @@ export class PeopleService {
       );
   }
 
-  private httpPut<T>(path: string, data: T, defaultResult?: T): Observable<any> {
-    const url = this.peopleUrl + path;
+  private httpPut<T>(url: string, data: any, defaultResult?: T): Observable<any> {
     console.log(`begin httpPut: ${url}`, data);
     return this.httpClient.put<T>(url, data)
       .pipe(
@@ -60,8 +60,7 @@ export class PeopleService {
       );
   }
 
-  private httpPost<T>(data: T, defaultResult?: T): Observable<any> {
-    const url = this.peopleUrl;
+  private httpPost<T>(url: string, data: any, defaultResult?: T): Observable<any> {
     console.log(`begin httpPost: ${url}`, data);
     return this.httpClient.post<T>(url, data)
       .pipe(
@@ -70,8 +69,7 @@ export class PeopleService {
       );
   }
 
-  private httpDelete<T>(path: string, defaultResult?: T): Observable<any> {
-    const url = this.peopleUrl + path;
+  private httpDelete<T>(url: string, defaultResult?: T): Observable<any> {
     console.log(`begin httpDelete: ${url}`);
     return this.httpClient.delete(url)
       .pipe(

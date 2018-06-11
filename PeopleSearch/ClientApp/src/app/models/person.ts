@@ -5,7 +5,7 @@ export class Person {
   gender?: string;
   age?: number;
   interests?: string;
-  avatarUri?: string;
+  avatarId?: string;
   addr1?: string;
   addr2?: string;
   country?: string;

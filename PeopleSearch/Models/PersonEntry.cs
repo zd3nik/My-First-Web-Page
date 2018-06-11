@@ -8,7 +8,7 @@
         public string Gender { get; set; }
         public int Age { get; set; }
         public string Interests { get; set; }
-        public string AvatarUri { get; set; }
+        public string AvatarId { get; set; }
         public string Addr1 { get; set; }
         public string Addr2 { get; set; }
         public string Country { get; set; }
@@ -32,7 +32,7 @@
                 Gender = other.Gender;
                 Age = other.Age;
                 Interests = other.Interests;
-                AvatarUri = other.AvatarUri;
+                AvatarId = other.AvatarId;
                 Addr1 = other.Addr1;
                 Addr2 = other.Addr2;
                 Country = other.Country;
