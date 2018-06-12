@@ -6,19 +6,76 @@
   </div>
   <p>{{person.firstName | titlecase}} {{person.lastName | titlecase}}</p>
   <hr />
-  <div [class.hideme]="!showEditor">
-    <p><span>First Name: </span><input [(ngModel)]="person.firstName" placeholder="required" /></p>
-    <p><span>Last Name: </span><input [(ngModel)]="person.lastName" placeholder="required" /></p>
-    <p><span>Gender: </span><input [(ngModel)]="person.gender" /></p>
-    <p><span>Age: </span><input [(ngModel)]="person.age" /></p>
-    <p><span>Interests: </span><input [(ngModel)]="person.interests" /></p>
-    <p><span>Address Line 1: </span><input [(ngModel)]="person.addr1" /></p>
-    <p><span>Address Line 2: </span><input [(ngModel)]="person.addr2" /></p>
-    <p><span>Country: </span><input [(ngModel)]="person.country" /></p>
-    <p><span>City: </span><input [(ngModel)]="person.city" /></p>
-    <p><span>State: </span><input [(ngModel)]="person.state" /></p>
-    <p><span>Zip: </span><input [(ngModel)]="person.zipCode" /></p>
-    <button (click)="save()">Save</button>
+  <div [class.hideme]="!showEditor" style="{'margin-bottom':'2em'}">
+    <table id="person-table">
+      <tr>
+        <td nowrap id="t-lbl">First Name: </td>
+        <td nowrap id="t-dat">
+          <input #firstName [(ngModel)]="person.firstName" placeholder="required"
+                 (keyup)="onKey($event, null, age)" />
+        </td>
+        <td nowrap id="t-lbl">Last Name: </td>
+        <td nowrap id="t-dat">
+          <input #lastName [(ngModel)]="person.lastName" placeholder="required"
+                 (keyup)="onKey($event, null, gender)" />
+        </td>
+      </tr>
+      <tr>
+        <td nowrap id="t-lbl">Age: </td>
+        <td nowrap id="t-dat">
+          <input #age [(ngModel)]="person.age"
+                 (keyup)="onKey($event, firstName, addr1)" />
+        </td>
+        <td nowrap id="t-lbl">Gender: </td>
+        <td nowrap id="t-dat">
+          <input #gender [(ngModel)]="person.gender"
+                 (keyup)="onKey($event, lastName, country)" />
+        </td>
+      </tr>
+      <tr>
+        <td nowrap id="t-lbl">Address Line 1: </td>
+        <td nowrap id="t-dat">
+          <input #addr1 [(ngModel)]="person.addr1"
+                 (keyup)="onKey($event, age, addr2)" />
+        </td>
+        <td nowrap id="t-lbl">Country: </td>
+        <td nowrap id="t-dat">
+          <input #country [(ngModel)]="person.country"
+                 (keyup)="onKey($event, gender, city)" />
+        </td>
+        <td nowrap id="t-lbl">State: </td>
+        <td nowrap id="t-dat">
+          <input #state [(ngModel)]="person.state"
+                 (keyup)="onKey($event, gender, zipCode)" />
+        </td>
+      </tr>
+      <tr>
+        <td nowrap id="t-lbl">Address Line 2: </td>
+        <td nowrap id="t-dat">
+          <input #addr2 [(ngModel)]="person.addr2"
+                 (keyup)="onKey($event, addr1, interests)" />
+        </td>
+        <td nowrap id="t-lbl">City: </td>
+        <td nowrap id="t-dat">
+          <input #city [(ngModel)]="person.city"
+                 (keyup)="onKey($event, country, interests)" />
+        </td>
+        <td nowrap id="t-lbl">Zip: </td>
+        <td nowrap id="t-dat">
+          <input #zipCode [(ngModel)]="person.zipCode"
+                 (keyup)="onKey($event, state, interests)" />
+        </td>
+      </tr>
+      <tr>
+        <td nowrap id="t-lbl">Interests: </td>
+        <td nowrap class="txt">
+          <input name="interests" [(ngModel)]="person.interests"
+                 (keyup)="onKey($event, addr2)" />
+        </td>
+      </tr>
+    </table>
+    <button id="save-button" [class.disableme]="!isChanged()" (click)="save()">Save</button>
+    <button id="reset-button" [class.hideme]="!isChanged()" (click)="reset()">Reset</button>
   </div>
   <div [class.hideme]="showEditor">
     <h3>Upload a new avatar image</h3>

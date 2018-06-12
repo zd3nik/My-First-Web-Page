@@ -1,6 +1,7 @@
 #person-detail {
   float: left;
   width: 75%;
+  margin-left: 1em;
 }
 
 .avatar-spacer {
@@ -27,4 +28,59 @@
     color: white;
     background-color: #90aeae;
     opacity: 0.8;
+  }
+
+#person-table {
+  margin-bottom: 1em;
+}
+
+#t-lbl {
+  font-weight: bold;
+  text-align: right;
+  padding-left: 1em;
+  padding-right: .5em;
+}
+
+#t-dat input {
+  cursor: pointer;
+  border: none;
+  color: darkblue;
+  background-color: inherit;
+}
+
+#t-dat input:hover {
+  background-color: lightgray;
+}
+
+  #t-dat input:focus {
+    cursor: auto;
+    border: inset;
+    background-color: inherit;
+  }
+
+button {
+  padding: 5px 15px;
+  border: 1px solid #0066cc;
+  border-radius: 5px;
+  background-color: #0099cc;
+  color: #ffffff;
+}
+
+  button:hover {
+    border: 1px solid #0099cc;
+    background-color: #00aacc;
+    color: #ffffff;
+  }
+
+.disableme {
+  border: 1px solid #aaaaaa;
+  background-color: #cccccc;
+  color: #666666;
+}
+
+  .disableme:hover {
+    border: 1px solid #aaaaaa;
+    background-color: #cccccc;
+    color: #666666;
+    cursor: default;
   }

@@ -1,6 +1,7 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, EventEmitter, ViewChild } from '@angular/core';
 import { Person } from '../models/person';
 import { PeopleService } from '../services/people.service';
+import { PersonComponent } from '../person/person.component';
 
 @Component({
   selector: 'app-people',
@@ -9,6 +10,7 @@ import { PeopleService } from '../services/people.service';
   providers: [PeopleService],
 })
 export class PeopleComponent implements OnInit {
+  @ViewChild(PersonComponent) child: PersonComponent;
   nameFilter: string;
   people: Person[];
   selectedPerson: Person;
@@ -42,7 +44,9 @@ export class PeopleComponent implements OnInit {
   delete(person: Person): void {
     const selectedId = this.selectedPerson ? this.selectedPerson.id : null;
     if (person && person.id) {
+      const deletedId = person.id; 
       this.peopleService.deletePerson(person.id).subscribe(_ => {
+        this.child.personRemoved(deletedId);
         this.peopleService.getPeople().subscribe(people => {
           this.people = people;
           this.selectedPerson = this.people.find(p => p.id === selectedId);

@@ -1,8 +1,8 @@
 #avatar-img {
   height: 256px;
   min-height: 256px;
-  width: 20%;
-  min-width: 20%;
+  width: 22%;
+  min-width: 22%;
   float: left;
   margin-right: 2em;
   margin-bottom: 2em;
@@ -13,6 +13,10 @@
   #avatar-img:last-of-type {
     padding-right: 0;
   }
+
+.grid {
+  margin-left: 1em;
+}
 
 .person-filler {
   min-height: 192px;  

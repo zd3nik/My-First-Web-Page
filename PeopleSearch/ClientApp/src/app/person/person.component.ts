@@ -14,6 +14,7 @@ export class PersonComponent implements OnInit {
   @Input() person: Person;
   @Output() personUpdated = new EventEmitter<Person>(); 
   @Output() personAdded = new EventEmitter<Person>();
+  private hasChanges: { [key: string]: boolean; } = {};
   private showEditor = true;
 
   constructor(
@@ -26,8 +27,59 @@ export class PersonComponent implements OnInit {
     this.getPerson();
   }
 
+  personRemoved(id: string) {
+    if (id) {
+      delete this.hasChanges[id];
+    }
+  }
+
+  getPerson(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.getPersonById(id);
+  }
+
+  getPersonById(id: string): void {
+    this.person = null;
+    if (id && id.trim().length > 0) {
+      this.peopleService.getPerson(id).subscribe(person => {
+        this.person = person;
+        if (this.hasChanges[id]) {
+          this.personUpdated.emit(this.person);
+          delete this.hasChanges[id];
+        }
+      });
+    }
+  }
+
+  onKey(event, up?, down?): void {
+    switch (event.code) {
+      case "Enter":
+        event.target.blur();
+        this.save();
+        break;
+      case "Escape":
+        event.target.blur();
+        break;
+      case "ArrowUp":
+        if (up) {
+          up.focus();
+        }
+        break;
+      case "ArrowDown":
+        if (down) {
+          down.focus();
+        }
+        break;
+      default:
+        // TODO only if text
+        if (this.person) {
+          this.hasChanges[this.person.id] = true;
+        }
+        break;
+    }
+  }
+
   changeAvatar(): void {
-    console.log("hiding editor");
     this.showEditor = false;
   }
 
@@ -41,35 +93,36 @@ export class PersonComponent implements OnInit {
   }
 
   cancelChangeAvatar(): void {
-    console.log("upload clicked!");
     this.showEditor = true;
   }
 
-  getPerson(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    this.getPersonById(id);
-  }
-
-  getPersonById(id: string): void {
-    this.person = null;
-    if (id && id.trim().length > 0) {
-      this.peopleService.getPerson(id).subscribe(person => this.person = person);
-    }
+  isChanged(): boolean {
+    return this.person ? this.hasChanges[this.person.id] : false;
   }
 
   save(): void {
     if (this.person) {
-      const id = this.person.id;
-      if (this.person.id) {
-        this.peopleService.updatePerson(this.person).subscribe(_ => {
-          this.personUpdated.emit(this.person);
-        });
-      } else {
-        this.peopleService.addPerson(this.person).subscribe(p => {
-          this.person = p;
-          this.personAdded.emit(this.person);
-        });
+      delete this.hasChanges[this.person.id];
+      console.log("saving ", this.person);
+      if (this.person) {
+        const id = this.person.id;
+        if (this.person.id) {
+          this.peopleService.updatePerson(this.person).subscribe(_ => {
+            this.personUpdated.emit(this.person);
+          });
+        } else {
+          this.peopleService.addPerson(this.person).subscribe(p => {
+            this.person = p;
+            this.personAdded.emit(this.person);
+          });
+        }
       }
+    }
+  }
+
+  reset(): void {
+    if (this.person) {
+      this.getPersonById(this.person.id);
     }
   }
 
